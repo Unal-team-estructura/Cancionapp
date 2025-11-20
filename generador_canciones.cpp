@@ -307,12 +307,11 @@ int main() {
     while (true) {
         cout << "\n== Menu ==" << endl;
         cout << "1) Generar y almacenar cancion aleatoria" << endl;
-        cout << "2) Crear cancion manualmente" << endl;
-        cout << "3) Ver titulos (in-order)" << endl;
-        cout << "4) Ver cancion por titulo" << endl;
-        cout << "5) Analizar fraude (comparar una cancion contra almacenadas)" << endl;
-        cout << "6) Borrar cancion por titulo" << endl;
-        cout << "7) Salir" << endl;
+        cout << "2) Ver titulos (in-order)" << endl;
+        cout << "3) Ver cancion por titulo" << endl;
+        cout << "4) Analizar fraude (comparar una cancion contra almacenadas)" << endl;
+        cout << "5) Borrar cancion por titulo" << endl;
+        cout << "6) Salir" << endl;
         cout << "Elija una opcion: ";
 
         string opt; getline(cin, opt);
@@ -320,23 +319,15 @@ int main() {
             string text = generar_cancion_text(d);
             cout << "Ingrese titulo para esta cancion: ";
             string title; getline(cin, title); title = trim(title);
-            if (title.empty()) title = "Cancion_" + to_string((int)chrono::high_resolution_clock::now().time_since_epoch().count());
+            if (title.empty()) 
+                title = "Cancion_" + to_string((int)chrono::high_resolution_clock::now().time_since_epoch().count());
             Song s(title, text);
             tree.insert(move(s));
             cout << "Cancion guardada." << endl;
         } else if (opt == "2") {
-            string title = ask_line("Titulo: "); title = trim(title);
-            string text;
-            cout << "Ingrese el texto de la cancion (una linea)." << endl;
-            getline(cin, text);
-            if (title.empty()) { cout << "Titulo invalido." << endl; continue; }
-            Song s(title, text);
-            tree.insert(move(s));
-            cout << "Cancion guardada." << endl;
-        } else if (opt == "3") {
             cout << "Titulos almacenados (in-order):" << endl;
             tree.print_inorder();
-        } else if (opt == "4") {
+        } else if (opt == "3") {
             string t = ask_line("Titulo a ver: "); t = trim(t);
             const Song* s = tree.find(t);
             if (!s) cout << "No encontrada." << endl;
@@ -345,7 +336,7 @@ int main() {
                 cout << s->text << endl;
                 cout << "(palabras indexadas: " << s->word_counts.size() << ")" << endl;
             }
-        } else if (opt == "5") {
+        } else if (opt == "4") {
             cout << "Analizar contra titulo existente o crear nueva? (e=existente / n=nueva): ";
             string t; getline(cin, t);
             Song probe;
@@ -359,7 +350,8 @@ int main() {
                 string text; getline(cin, text);
                 cout << "Ingrese un titulo para esta prueba: ";
                 string title; getline(cin, title); title = trim(title);
-                if (title.empty()) title = "probe_" + to_string((int)chrono::high_resolution_clock::now().time_since_epoch().count());
+                if (title.empty()) 
+                    title = "probe_" + to_string((int)chrono::high_resolution_clock::now().time_since_epoch().count());
                 probe = Song(title, text);
             }
             double thresh = 0.6;
@@ -374,10 +366,11 @@ int main() {
                     cout << fixed << setprecision(3) << " - " << p.first->title << " (sim=" << p.second << ")" << endl;
                 }
             }
-        } else if (opt == "6") {
+        } else if (opt == "5") {
             string title = ask_line("Titulo a borrar: "); title = trim(title);
-            if (tree.remove(title)) cout << "Borrado." << endl; else cout << "No encontrado." << endl;
-        } else if (opt == "7") break;
+            if (tree.remove(title)) cout << "Borrado." << endl; 
+            else cout << "No encontrado." << endl;
+        } else if (opt == "6") break;
         else cout << "Opcion invalida." << endl;
     }
 
