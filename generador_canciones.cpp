@@ -316,10 +316,13 @@ string trim(const string& s) {
 }
 
 // -------------------- Main interactive menu --------------------
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
+#include <iostream>
+#include <string>
+#include <chrono>
+#include <iomanip>
+using namespace std;
 
+int main() {
     Diccionario d;
     d.load_sample();
 
@@ -327,15 +330,16 @@ int main() {
     Vocabulary vocab;
 
     while (true) {
-        cout << "\n== Menu ==\n";
-        cout << "1) Generar y almacenar cancion aleatoria\n";
-        cout << "2) Crear cancion manualmente\"\n";
-        cout << "3) Ver titulos (in-order)\n";
-        cout << "4) Ver cancion por titulo\n";
-        cout << "5) Analizar fraude (comparar una cancion contra almacenadas)\n";
-        cout << "6) Borrar cancion por titulo\n";
-        cout << "7) Salir\n";
+        cout << "\n== Menu ==" << endl;
+        cout << "1) Generar y almacenar cancion aleatoria" << endl;
+        cout << "2) Crear cancion manualmente" << endl;
+        cout << "3) Ver titulos (in-order)" << endl;
+        cout << "4) Ver cancion por titulo" << endl;
+        cout << "5) Analizar fraude (comparar una cancion contra almacenadas)" << endl;
+        cout << "6) Borrar cancion por titulo" << endl;
+        cout << "7) Salir" << endl;
         cout << "Elija una opcion: ";
+
         string opt; getline(cin, opt);
         if (opt == "1") {
             string text = generar_cancion_text(d);
@@ -344,27 +348,27 @@ int main() {
             if (title.empty()) title = "Cancion_" + to_string((int)chrono::high_resolution_clock::now().time_since_epoch().count());
             Song s(title, text);
             tree.insert(move(s));
-            cout << "Cancion guardada.\n";
+            cout << "Cancion guardada." << endl;
         } else if (opt == "2") {
             string title = ask_line("Titulo: "); title = trim(title);
             string text;
-            cout << "Ingrese el texto de la cancion (una linea).\n";
+            cout << "Ingrese el texto de la cancion (una linea)." << endl;
             getline(cin, text);
-            if (title.empty()) { cout << "Titulo invalido.\n"; continue; }
+            if (title.empty()) { cout << "Titulo invalido." << endl; continue; }
             Song s(title, text);
             tree.insert(move(s));
-            cout << "Cancion guardada.\n";
+            cout << "Cancion guardada." << endl;
         } else if (opt == "3") {
-            cout << "Titulos almacenados (in-order):\n";
+            cout << "Titulos almacenados (in-order):" << endl;
             tree.print_inorder();
         } else if (opt == "4") {
             string t = ask_line("Titulo a ver: "); t = trim(t);
             const Song* s = tree.find(t);
-            if (!s) cout << "No encontrada.\n";
+            if (!s) cout << "No encontrada." << endl;
             else {
-                cout << "--- " << s->title << " ---\n";
-                cout << s->text << "\n";
-                cout << "(palabras indexadas: " << s->word_counts.size() << ")\n";
+                cout << "--- " << s->title << " ---" << endl;
+                cout << s->text << endl;
+                cout << "(palabras indexadas: " << s->word_counts.size() << ")" << endl;
             }
         } else if (opt == "5") {
             cout << "Analizar contra titulo existente o crear nueva? (e=existente / n=nueva): ";
@@ -373,34 +377,36 @@ int main() {
             if (!t.empty() && (t[0]=='e' || t[0]=='E')) {
                 string title = ask_line("Titulo a analizar: "); title = trim(title);
                 const Song* s = tree.find(title);
-                if (!s) { cout << "No encontrada.\n"; continue; }
+                if (!s) { cout << "No encontrada." << endl; continue; }
                 probe = *s; // copy
             } else {
-                cout << "Ingrese o genere el texto de la cancion (una linea):\n";
+                cout << "Ingrese o genere el texto de la cancion (una linea):" << endl;
                 string text; getline(cin, text);
-                cout << "Ingrese un titulo para esta prueba: "; string title; getline(cin, title); title = trim(title);
+                cout << "Ingrese un titulo para esta prueba: ";
+                string title; getline(cin, title); title = trim(title);
                 if (title.empty()) title = "probe_" + to_string((int)chrono::high_resolution_clock::now().time_since_epoch().count());
                 probe = Song(title, text);
             }
             double thresh = 0.6;
-            cout << "Umbral de similitud (0.0 - 1.0) [por defecto 0.6]: "; string thr; getline(cin, thr);
+            cout << "Umbral de similitud (0.0 - 1.0) [por defecto 0.6]: ";
+            string thr; getline(cin, thr);
             if (!thr.empty()) try { thresh = stod(thr); } catch(...) { thresh = 0.6; }
             auto found = detect_similar(probe, tree, vocab, thresh);
-            if (found.empty()) cout << "No se encontraron canciones similares (umbral="<<thresh<<").\n";
+            if (found.empty()) cout << "No se encontraron canciones similares (umbral="<<thresh<<")." << endl;
             else {
-                cout << "Posibles fraudes (similitud >= " << thr << "):\n";
+                cout << "Posibles fraudes (similitud >= " << thresh << "):" << endl;
                 for (auto &p : found) {
-                    cout << fixed << setprecision(3) << " - " << p.first->title << " (sim=" << p.second << ")\n";
+                    cout << fixed << setprecision(3) << " - " << p.first->title << " (sim=" << p.second << ")" << endl;
                 }
             }
         } else if (opt == "6") {
             string title = ask_line("Titulo a borrar: "); title = trim(title);
-            if (tree.remove(title)) cout << "Borrado.\n"; else cout << "No encontrado.\n";
+            if (tree.remove(title)) cout << "Borrado." << endl; else cout << "No encontrado." << endl;
         } else if (opt == "7") break;
-        else cout << "Opcion invalida.\n";
+        else cout << "Opcion invalida." << endl;
     }
 
-    cout << "Adios.\n";
+    cout << "Adios." << endl;
     return 0;
 }
 
