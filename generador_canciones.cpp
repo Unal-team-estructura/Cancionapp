@@ -12,7 +12,6 @@
 
 using namespace std;
 
-// RNG
 static mt19937 rng((unsigned)chrono::high_resolution_clock::now().time_since_epoch().count());
 
 string pick_random(const vector<string>& v) {
@@ -32,7 +31,6 @@ string join_tokens(const vector<string>& tokens) {
     return out.str();
 }
 
-// -------------------- Diccionario (usa std::map en vez de unordered_map) --------------------
 struct Diccionario {
     map<string, vector<string>> cat;
 
@@ -58,7 +56,6 @@ struct Diccionario {
     }
 };
 
-// -------------------- Generadores de versos/canciones --------------------
 string generar_verso_simple(const Diccionario& d) {
     vector<string> tokens;
     if (uniform_int_distribution<int>(0,1)(rng)) tokens.push_back(pick_random(d.get("S")));
@@ -106,12 +103,9 @@ string generar_cancion_text(Diccionario& d) {
     return out.str();
 }
 
-// -------------------- Song representation --------------------
 struct Song {
     string title;
-    string text; // full song text
-
-    // sparse word counts using ordered map (word -> count)
+    string text; 
     map<string,int> word_counts;
 
     Song() = default;
@@ -133,7 +127,6 @@ struct Song {
     }
 };
 
-// -------------------- Binary Search Tree for Songs (keyed by title) --------------------
 struct BSTNode {
     Song song;
     unique_ptr<BSTNode> left, right;
@@ -156,7 +149,7 @@ class SongBST {
     }
 
     static unique_ptr<BSTNode>& find_node(unique_ptr<BSTNode>& node, const string& title) {
-        return node; // helper not used
+        return node; 
     }
 
     static unique_ptr<BSTNode> remove_rec(unique_ptr<BSTNode> node, const string& title, bool &removed) {
@@ -167,7 +160,6 @@ class SongBST {
             removed = true;
             if (!node->left) return move(node->right);
             if (!node->right) return move(node->left);
-            // two children: replace with inorder successor
             BSTNode* succ = find_min(node->right.get());
             node->song = succ->song;
             node->right = remove_rec(move(node->right), succ->song.title, removed);
@@ -183,7 +175,6 @@ public:
         BSTNode* cur = root.get();
         while (true) {
             if (s.title == cur->song.title) {
-                // replace
                 cur->song = move(s);
                 return;
             } else if (s.title < cur->song.title) {
@@ -223,10 +214,8 @@ public:
     }
 };
 
-// -------------------- Vocabulary & Sparse vectors --------------------
-// We maintain a global vocabulary (ordered map: word -> index)
 struct Vocabulary {
-    map<string,int> index_of; // ordered -- avoids hashes
+    map<string,int> index_of; 
     vector<string> words;
 
     int ensure(const string& w) {
@@ -246,8 +235,7 @@ struct Vocabulary {
     size_t size() const { return words.size(); }
 };
 
-// Convert song word_counts (map<string,int>) to a sparse vector of (index, value)
-using SparseVec = vector<pair<int,double>>; // sorted by index
+using SparseVec = vector<pair<int,double>>; 
 
 SparseVec build_sparse(const Song& s, Vocabulary& V) {
     SparseVec out;
@@ -259,7 +247,6 @@ SparseVec build_sparse(const Song& s, Vocabulary& V) {
     return out;
 }
 
-// Cosine similarity between two sparse vectors
 double cosine_similarity(const SparseVec& a, const SparseVec& b) {
     size_t ia = 0, ib = 0;
     double dot = 0.0;
@@ -280,13 +267,10 @@ double cosine_similarity(const SparseVec& a, const SparseVec& b) {
     return dot / (sqrt(na) * sqrt(nb));
 }
 
-// -------------------- Fraud detection --------------------
-// Simple approach: compute pairwise similarity between newSong and existing songs.
-// If similarity >= threshold -> flagged as potential fraud.
+
 vector<pair<const Song*, double>> detect_similar(const Song& s, const SongBST& tree, Vocabulary& V, double threshold=0.6) {
     vector<pair<const Song*, double>> found;
-    // build sparse vector for s without adding new vocabulary entries permanently:
-    // To keep code simple we will allow vocabulary extension (it's fine), but note it.
+
     SparseVec sv = build_sparse(s, V);
     auto all = tree.all_songs_inorder();
     for (auto other : all) {
@@ -299,7 +283,6 @@ vector<pair<const Song*, double>> detect_similar(const Song& s, const SongBST& t
     return found;
 }
 
-// -------------------- Utilities --------------------
 string ask_line(const string& prompt) {
     cout << prompt;
     string s;
@@ -307,20 +290,12 @@ string ask_line(const string& prompt) {
     return s;
 }
 
-// sanitize a title (trim)
 string trim(const string& s) {
     size_t a = s.find_first_not_of(" \t\n\r");
     if (a == string::npos) return "";
     size_t b = s.find_last_not_of(" \t\n\r");
     return s.substr(a, b - a + 1);
 }
-
-// -------------------- Main interactive menu --------------------
-#include <iostream>
-#include <string>
-#include <chrono>
-#include <iomanip>
-using namespace std;
 
 int main() {
     Diccionario d;
@@ -378,7 +353,7 @@ int main() {
                 string title = ask_line("Titulo a analizar: "); title = trim(title);
                 const Song* s = tree.find(title);
                 if (!s) { cout << "No encontrada." << endl; continue; }
-                probe = *s; // copy
+                probe = *s; 
             } else {
                 cout << "Ingrese o genere el texto de la cancion (una linea):" << endl;
                 string text; getline(cin, text);
@@ -409,4 +384,3 @@ int main() {
     cout << "Adios." << endl;
     return 0;
 }
-
