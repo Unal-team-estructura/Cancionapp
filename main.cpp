@@ -37,10 +37,10 @@ int main() {
         getline(cin, opt);
 
         if (opt == "1") {
-            cout << color("\n→ Generando canción...\n", 34);
+            cout << color("\n→ Generando cancion...\n", 34);
             string text = generar_cancion_text(d);
 
-            string title = ask_line(color("Ingrese título: ", 33));
+            string title = ask_line(color("Ingrese titulo: ", 33));
             title = trim(title);
             if (title.empty())
                 title = "Cancion_" + to_string((int)chrono::high_resolution_clock::now().time_since_epoch().count());
@@ -48,18 +48,18 @@ int main() {
             Song s(title, text);
             tree.insert(move(s));
 
-            cout << color("✔ Canción guardada.\n", 32);
+            cout << color(" Cancion guardada.\n", 32);
 
         } else if (opt == "2") {
-            cout << color("\n--- Títulos almacenados ---\n", 36);
+            cout << color("\n--- Titulos almacenados ---\n", 36);
             tree.print_inorder();
 
         } else if (opt == "3") {
-            string t = ask_line(color("Título a ver: ", 33));
+            string t = ask_line(color("Titulo a ver: ", 33));
             t = trim(t);
 
             const Song* s = tree.find(t);
-            if (!s) cout << color("✖ No encontrada.\n", 31);
+            if (!s) cout << color(" No encontrada.\n", 31);
             else {
                 cout << color("\n--- " + s->title + " ---\n", 36);
                 cout << s->text << "\n";
@@ -73,7 +73,7 @@ int main() {
             Song probe;
 
             if (!t.empty() && (t[0]=='e' || t[0]=='E')) {
-                string title = ask_line(color("TTitulo: ", 33));
+                string title = ask_line(color("Titulo: ", 33));
                 title = trim(title);
 
                 const Song* s = tree.find(title);
@@ -113,7 +113,7 @@ int main() {
             }
 
         } else if (opt == "5") {
-            string title = ask_line(color("TTitulo: ", 33));
+            string title = ask_line(color("Titulo: ", 33));
             title = trim(title);
 
             if (tree.remove(title)) 
