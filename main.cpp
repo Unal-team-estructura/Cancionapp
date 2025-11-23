@@ -37,7 +37,7 @@ int main() {
         getline(cin, opt);
 
         if (opt == "1") {
-            cout << color("\n→ Generando cancion...\n", 34);
+            cout << color("\n Generando cancion...\n", 34);
             string text = generar_cancion_text(d);
 
             string title = ask_line(color("Ingrese titulo: ", 33));
